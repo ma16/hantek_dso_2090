@@ -1,0 +1,32 @@
+# BSD 2-Clause License, see https://github.com/ma16/hantek_dso_2090 
+
+default: all
+
+DEP=$(LSRC:=.d) $(BSRC:=.d)
+#$(DEP): ;
+$(DEP): %.c.d : %.c
+	$(CC) -E $(@:.d=) -MD -MT $@ -MF $@ > /dev/null
+
+LOBJ=$(LSRC:.c=.o)
+BOBJ=$(BSRC:.c=.o)
+$(LOBJ) $(BOBJ): %.o : %.c.d
+#	$(CC) -E $(@:.o=.c) -MD -MT $@ -MF $(@:.o=.c.d) > /dev/null
+	$(CC) -o $@ -c $(@:.o=.c)
+
+# -MD: depend not only on local headers but also on system includes
+# -MT: dependency target name 
+# -MF: file to write dependencies to 
+
+BIN=$(BOBJ:.o=)
+$(BIN): % : %.o $(LOBJ) $(AOBJ)
+	$(LD) -o $@ $^ $(LDFLAGS)
+
+all: $(BIN)
+
+clean:
+	rm -f $(DEP) $(LOBJ) $(BOBJ) $(BIN)
+
+
+-include $(DEP)
+
+# [opt] introduce a .build-directory to keep source directories clean
