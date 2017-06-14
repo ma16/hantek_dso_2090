@@ -1,15 +1,16 @@
-# hantek_dso_2090 -- A console application for Hantek's DSO-2090
+# A console application for Hantek's DSO-2090
 
 This projects is intended to dig a bit deeper into the device details.
 
 Have a look into src/hantekDlg.h for device information.
 
 ```
+## The Tool
 $ ./dso2090 
 options: acquire | calibrate | device | direct | help | rate
 ```
 
-## device
+## Option: device
 ```
 $ ./dso2090 device scan
 Hantek DSO-2090 (w/o firmware) on address <1:7> at path <1.1.4>
@@ -20,7 +21,7 @@ Hantek DSO-2090 (with firmware) on address <1:8> at path <1.1.4>
 ```
 See sigrok.org/wiki/Hantek_DSO-2xxx/52xx on how to get the firmware file.
 
-## direct
+## Option: direct
 ```
 $ ./dso2090 direct
 arguments: DEVICE MODE [help]
@@ -32,7 +33,7 @@ MODE : capture  # tell device to capture data
      | trigger  # tell device to arm or release trigger
 ```
 
-## rate
+## Option: rate
 ```
 $ ./dso2090 rate
 Try to determine the current sample-rate
@@ -45,7 +46,7 @@ MODE : count   # count frame-pointer-increments and measure time
 Use vector on high sample-rates, otherwise count.
 ```
 
-## calibrate
+## Option: calibrate
 ```
 $ ./dso2090 calibrate
 arguments: DEVICE NRECORDS ADC INPUT FRAME PRESCALER COUPLING
@@ -53,8 +54,9 @@ arguments: DEVICE NRECORDS ADC INPUT FRAME PRESCALER COUPLING
 NRECORDS: the number of records to sample per offset-voltage
 ```
 
-## acquire
+## Option: acquire
 ```
+./dso2090 acquire
 Acquire a frame.
 options: DEVICE RELEASE CONFIG [CALIBRATION]
     RELEASE : immediately (yes) or wait for trigger signal (no)
@@ -62,7 +64,7 @@ options: DEVICE RELEASE CONFIG [CALIBRATION]
 CALIBRATION : file with calibration data
 ```
 
-## help
+## Option: help
 ```
 $ ./dso2090 help
 USB-device selection
