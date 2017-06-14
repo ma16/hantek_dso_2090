@@ -4,8 +4,8 @@ This projects is intended to dig a bit deeper into the device details.
 
 Have a look into src/hantekDlg.h for device information.
 
-```
 ## The Tool
+```
 $ ./dso2090 
 options: acquire | calibrate | device | direct | help | rate
 ```
