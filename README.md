@@ -56,7 +56,7 @@ NRECORDS: the number of records to sample per offset-voltage
 
 ## Option: acquire
 ```
-./dso2090 acquire
+$ ./dso2090 acquire
 Acquire a frame.
 options: DEVICE RELEASE CONFIG [CALIBRATION]
     RELEASE : immediately (yes) or wait for trigger signal (no)
