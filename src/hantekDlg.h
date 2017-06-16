@@ -7,7 +7,6 @@
 
 #include <assert.h>
 #include <stdbool.h>
-#include "usb.h"
 #include "usbExt.h"
 
 /* --------------------------------------------------------------------
@@ -485,7 +484,7 @@ typedef struct
 HantekDlg_TriggerLevel ;    
 
 /* 
-Only 8-bit values seemm to be recognized by the DSO-2090 even though 
+Only 8-bit values seem to be recognized by the DSO-2090 even though 
 the domain is 16-bit.
 
 It appears that the signal has to rise/fall about four (ADC 
@@ -708,7 +707,6 @@ github.com/OpenHantek/openhantek
 
 "Inside a Hantek DSO-2090" by Fabio Baltieri:
 fabiobaltieri.com/2013/07/10/inside-a-hantek-dso-2090-usb-oscilloscope
-[sigrok]
 
 Sigrok:
 sigrok.org/wiki/Hantek_DSO-2090
