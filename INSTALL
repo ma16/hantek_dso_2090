@@ -1,0 +1,26 @@
+Installation Notes:
+
+The project provides only the source code and needs to be compiled to create an executable tool. 
+
+The source is written in C99. There is one exception: Access to time-related function is based on POSIX.1-2001 (see systime.c). So this project should hopefully compile and run at least on all Posix compliant platforms.
+
+Contributions:
+
+The Hantek DSO is accessed by USB. This project makes use of libusb (libusb.info), a great library that provides a userland API for the USB protocol. Thus, in order to compile this project, this library needs to be installed beforehand (whether build or installed as package).
+
+Installation Example:
+
+The build system is (a fresh) Ubuntu-16.04.1 Desktop Amd64 (2017-01-11).
+
+$ sudo apt-get install libusb-1.0-0-dev
+$ wget https://github.com/ma16/hantek_dso_2090/archive/master.zip
+$ unzip master
+$ cd hantek_dso_2090-master/src
+$ make
+$ ./dso2090 
+
+The last command should give you a diagnostic message of the tool.
+
+Reference:
+
+This project including this file is hosted at https://github.com/ma16/hantek_dso_2090
