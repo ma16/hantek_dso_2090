@@ -40,7 +40,7 @@ static unsigned opt_ifChoiceVa(Opt *self,va_list *ap)
 	return 0 ;
     char const *s = opt_peek(self) ;
     unsigned i = 1 ;
-    char const *t = va_arg(ap,char const*) ;
+    char const *t = va_arg(*ap,char const*) ;
     while (t != NULL)
     {
 	if (0 == strcmp(s,t))
