@@ -10,7 +10,7 @@ The Hantek DSO is accessed by USB. This project makes use of libusb (libusb.info
 
 Installation Example:
 
-The build system is (a fresh) Ubuntu-16.04.1 Desktop Amd64 (2017-01-11).
+The build system is an i3-2120 on (a fresh) Ubuntu-16.04.1 Desktop Amd64 (2017-01-11) which is using gcc version 5.4.0.
 
 $ sudo apt-get install libusb-1.0-0-dev
 $ wget https://github.com/ma16/hantek_dso_2090/archive/master.zip
@@ -20,6 +20,15 @@ $ make
 $ ./dso2090 
 
 The last command should give you a diagnostic message of the tool.
+
+This was also tested with an ARMv7 (BCM2836 aka Raspberry Pi-2) on (a fresh) Raspbian Jessie (2016-09-23) which is using gcc version 4.9.2.
+
+Notes:
+
+On Linux you may want to place an udev-rules-file into /lib/udev/rules.d/ (or wherever your distro recognizes them) to enable non-root permissions for USB devices. I.e.
+
+ATTRS{idVendor}=="04b4", ATTRS{idProduct}=="2090", MODE="664", GROUP="plugdev"
+ATTRS{idVendor}=="04b5", ATTRS{idProduct}=="2090", MODE="664", GROUP="plugdev"
 
 Reference:
 
