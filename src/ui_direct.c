@@ -296,13 +296,15 @@ void ui_direct(libusb_context *libusb,Opt *opt)
 {
     if (opt_end(opt) || opt_popIf(opt,"help"))
     {
-	printf("arguments: DEVICE MODE [help]\n"
-	       "\n"
-	       "MODE : capture  # tell device to capture data\n"
-	       "     | fetch    # transfer frame from device to host\n"
-	       "     | get      # query status or calibration\n"
-	       "     | set      # tell device to change configuration\n"
-	       "     | trigger  # tell device to arm or release trigger\n") ;
+	printf(
+	    "Initiate a device dialog.\n"
+	    "arguments: DEVICE MODE [help]\n"
+	    "MODE : capture  # tell device to capture data\n"
+	    "     | fetch    # transfer frame from device to host (stdout)\n"
+	    "     | get      # query status or calibration\n"
+	    "     | set      # tell device to change configuration\n"
+	    "     | trigger  # tell device to arm or release trigger\n"
+	    ) ;
 	return ;
     }
     libusb_device_handle *handle = optDevice_dso2090(opt,libusb) ;

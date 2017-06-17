@@ -101,6 +101,7 @@ void ui_device(libusb_context *libusb,Opt *opt)
     if (opt_end(opt) || opt_popIf(opt,"help"))
     {
 	printf(
+	    "Scan for devices and upload firmware.\n"
 	    "arguments: MODE\n"
 	    "MODE : scan                # list all Hantek DSO-2090\n"
 	    "     | upload DEVICE FILE  # upload FILE to DEVICE\n"
