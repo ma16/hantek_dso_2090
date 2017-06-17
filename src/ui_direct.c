@@ -13,7 +13,7 @@
 
 /* ----[ direct.set ] ------------------------------------------------- */
 
-static void setAttn(libusb_device_handle *handle,Opt *opt)
+static void setMux(libusb_device_handle *handle,Opt *opt)
 {
     if (opt_end(opt) || opt_popIf(opt,"help"))
     {
@@ -132,7 +132,7 @@ static void set(libusb_device_handle *handle,Opt *opt)
     char const *arg = opt_pop(opt) ;
     if (false) ;
     
-    else if (0 == strcmp(arg,   "attn"))   setAttn(handle,opt) ;
+    else if (0 == strcmp(arg,    "mux"))    setMux(handle,opt) ;
     else if (0 == strcmp(arg, "filter")) setFilter(handle,opt) ;
     else if (0 == strcmp(arg,  "input"))  setInput(handle,opt) ;
     else if (0 == strcmp(arg, "offset")) setOffset(handle,opt) ;

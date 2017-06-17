@@ -13,17 +13,50 @@
 
 void ui_acquire(libusb_context *libusb,Opt *opt)
 {
-    if (opt_end(opt) || opt_popIf(opt,"help"))
+    if (opt_end(opt))
     {
 	printf(
 	    "Acquire a frame.\n"
-	    "options: DEVICE RELEASE CONFIG [CALIBRATION]\n"
-	    "    RELEASE : immediately (yes) or wait for trigger signal (no)\n"
-	    "     CONFIG : file with configuration data\n"
-	    "CALIBRATION : file with calibration data\n"
+	    "options: DEVICE RELEASE CONFIG [CALIB] | help\n"
+	    "RELEASE : immediately (yes) or wait for trigger signal (no)\n"
+	    "CAPTURE : file with capture configuration\n"
+	    "CALIB   : file with calibration data\n"
 	    ) ;
 	return ;
     }
+    else if (opt_popIf(opt,"help"))
+    {
+	opt_finish(opt) ;
+	printf(
+	    "CAPTURE : 'frame' '=' FRAME\n"
+            "          'input' '=' INPUT\n"
+	    "          'rate'  '=' PRESCALER\n"
+	    "          'ch1' CH 'ch2' CH trigger TRIGGER\n"
+	    "          'ext.filter' '=' BOOL\n"
+	    "\n"
+	    "CH     : '{'\n"
+	    "              'coupling' '=' COUPLING\n"
+	    "              'filter'   '=' BOOL\n"
+	    "              'mux'      '=' MUX_ATTN\n"
+	    "              'offset'   '=' OFFSET_VOLTAGE\n"
+	    "              'relay'    '=' RELAY_ATTN\n"
+	    "          '}'\n"
+	    "\n"
+	    "TRIGGER : '{'\n"
+	    "              'channel'  '=' CHANNEL\n"
+	    "              'count'    '=' TRIGGER_COUNT\n"
+	    "              'ext'      '=' BOOL\n"
+	    "              'level'    '=' TRIGGER_LEVEL\n"
+	    "              'slope'    '=' SLOPE\n"
+	    "          '}'\n"
+	    "\n"
+	    "CALIB  : 'ch1' CH 'ch2' CH\n"
+	    "\n"
+	    "CH     : '{' OFFSET_VOLTAGE{9} '}'\n"
+	    "       # for ascending attenuation (1x,1x),(1x,2x)...(100x,5x)\n"
+	    ) ;
+	return ;
+    } 
 
     libusb_device_handle *handle = optDevice_dso2090(opt,libusb) ;
     bool release = opt_bool(opt) ;

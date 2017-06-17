@@ -262,7 +262,6 @@ void ui_calibrate(libusb_context *libusb,Opt *opt)
 	printf(
 	    "arguments: "
 	    "DEVICE NRECORDS ADC INPUT FRAME PRESCALER COUPLING\n"
-	    "\n"
 	    "NRECORDS: the number of records to sample per offset-voltage\n"
 	    ) ;
 	return ;
