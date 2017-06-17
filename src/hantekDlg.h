@@ -339,18 +339,16 @@ typedef struct
 }
 HantekDlg_Prescaler ;
 
-
 /*
-Both ADC sample at the same rate. However, it seems there is a slight
+Both ADC sample at the same rate. However, it appears there is a 
 displacement _when_ the sample is taken. The displacement between ADC:0
-and ADC:1 appears to be about 10ns regardless whether both ADC sample
-the signal of the same or different channels [todo]. This enables an 
-effective sampling rate of 100 MHz when both ADC sample the same signal
-source at 50 MHz.
+and ADC:1 seems to be 1/(2*sample-rate) regardless whether both ADC 
+sample the signal of the same or of different channels. This doubles 
+the effective sampling rate when both ADC sample the same signal.
 
 [caveats] 
-OpenHantek uses "fastRate" switch. This switch however seems to have
-no for the DSO-2090 that was used in a test.
+OpenHantek uses a "fastRate" switch. This switch however seems to have
+no effect for the DSO-2090 that was used in a test.
 
 [caveats] 
 A comment in the OpenHantek sources suggest that "the sampling-rate 
