@@ -80,6 +80,10 @@ static void upload(libusb_context *libusb,Opt *opt)
     printf("wait for device to pop (this may take 2 seconds)... ") ;
     fflush(stdout) ;
     double t0 = systime_get() ;
+    /* the device needs a moment to disappear; if we try to find the 
+       new device immediately, we may run into a LIBUSB_ERROR_IO when
+       opening */
+    systime_sleep(0.5) ;
     bool found = findPath(libusb,&path) ;
     while (!found && (systime_get()-t0) < 5.0)
     {
