@@ -53,16 +53,16 @@ HantekDlg_Calibration hantekDlg_getCalibration(libusb_device_handle *handle)
     return decode(data,nwords) ;
 }
 
+/* ----[ control 0xb2 ] ----------------------------------------------- */
+
+/* OpenHantek: USB full/high speed [todo] */
+
 /* ----[ control 0xb3 ] ----------------------------------------------- */
 
 static void hantekDlg_setup(libusb_device_handle *handle)
 {
-    uint8_t data[2] = {0x0f,0x03} ;
-    /* [peculiar] OpenHantek uses instead
-          [10] = { 0x0f, bulk-index, bulk-index, bulk-index}
-       where the fields 1..3 take a "bulk-index" 
-       OpenHantek uses '3' but says other values are possible too 
-       [todo] this needs further investigation */
+    uint8_t data[10] = {0x0f,0x03,0x03,0x03} ;
+    /* taken from OpenHantek [todo] this needs further investigation */
 
     controlXfer(
 	handle,LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR,
@@ -71,7 +71,7 @@ static void hantekDlg_setup(libusb_device_handle *handle)
 /* ----[ control 0xb4 ] ------------------------ */
 
 static void makeData_setOffset(
-    uint8_t           (*data)[6],    
+    uint8_t           (*data)[17],
     HantekDlg_OffsetVoltage  ch1,
     HantekDlg_OffsetVoltage  ch2,
     HantekDlg_TriggerLevel level)
@@ -82,6 +82,7 @@ static void makeData_setOffset(
     (*data)[3] = (uint8_t)   ch2.i       ;
     (*data)[4] = (uint8_t)(level.i >> 8) ; /* [peculiar] sigrok does "|0x20" */
     (*data)[5] = (uint8_t) level.i       ;
+    memset((*data)+6,0x00,sizeof(*data)-6) ;
 }
 
 void hantekDlg_setOffset(
@@ -90,7 +91,7 @@ void hantekDlg_setOffset(
     HantekDlg_OffsetVoltage     ch2,
     HantekDlg_TriggerLevel    level) 
 {
-    uint8_t data[6] ; /* 17 bytes in OpenHantek */
+    uint8_t data[17] ; 
     makeData_setOffset(&data,ch1,ch2,level) ;
     controlXfer(
 	handle,LIBUSB_ENDPOINT_OUT | LIBUSB_REQUEST_TYPE_VENDOR,
@@ -100,7 +101,7 @@ void hantekDlg_setOffset(
 /* ----[ control 0xb5 ]------------------------- */
 
 static void makeData_setRelay(
-    uint8_t             (*data)[8],    
+    uint8_t             (*data)[17],    
     HantekDlg_RelayAttnId    attn_ch1,
     HantekDlg_CouplingId coupling_ch1,
     HantekDlg_RelayAttnId    attn_ch2,
@@ -153,6 +154,8 @@ static void makeData_setRelay(
     /* [peculiar] Values at index 1..7 have a binary effect (either on
        or off). However, the actual numbers are 0x1,0x2,0x4,0x8,0x10,
        0x20,0x40 (plus inversed values).*/
+
+    memset((*data)+8,0x00,sizeof(*data)-8) ;
 }
 
 void hantekDlg_setRelay(
@@ -163,7 +166,7 @@ void hantekDlg_setRelay(
     HantekDlg_CouplingId coupling_ch2,
     HantekDlg_ExtInput            ext)
 {
-    uint8_t data[8] ; /* 17 bytes in OpenHantek */
+    uint8_t data[17] ; 
     makeData_setRelay(
 	&data,
 	attn_ch1,coupling_ch1,
@@ -411,8 +414,8 @@ static void makeData_setMux(
     HantekDlg_MuxAttnId attn_ch1,
     HantekDlg_MuxAttnId attn_ch2)
 {
-    (*data)[0] =    7 ; /* hantek command code */
-    (*data)[1] = 0x0f ; /* [peculiar] another magic number? */
+    (*data)[0] = 7 ; /* hantek command code */
+    (*data)[1] = 0 ; 
     
     (*data)[2] = (uint8_t) (0x30 | (attn_ch2.e << 2) | attn_ch1.e) ;
     /* [peculiar] what stands 0x30 for? */
@@ -434,3 +437,5 @@ void hantekDlg_setMux(
     makeData_setMux(&data,ch1,ch2) ;
     bulkSend(handle,data,sizeof(data)) ;
 }
+
+/* OpenHantek has also bulk 0x8 and 0x9 commands [todo] */
