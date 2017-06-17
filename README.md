@@ -298,11 +298,202 @@ $ ./dso2090 calibrate auto 0x100 0 both tiny 50/1 dc
 ```
 $ ./dso2090 acquire
 Acquire a frame.
-options: DEVICE RELEASE CONFIG [CALIBRATION]
-    RELEASE : immediately (yes) or wait for trigger signal (no)
-     CONFIG : file with configuration data
-CALIBRATION : file with calibration data
+options: DEVICE RELEASE CONFIG [CALIB] | help
+RELEASE : immediately (yes) or wait for trigger signal (no)
+CAPTURE : file with capture configuration
+CALIB   : file with calibration data
 ```
+
+```
+$ ./dso2090 acquire help
+CAPTURE : 'frame' '=' FRAME
+          'input' '=' INPUT
+          'rate'  '=' PRESCALER
+          'ch1' CH 'ch2' CH trigger TRIGGER
+          'ext.filter' '=' BOOL
+
+CH     : '{'
+              'coupling' '=' COUPLING
+              'filter'   '=' BOOL
+              'mux'      '=' MUX_ATTN
+              'offset'   '=' OFFSET_VOLTAGE
+              'relay'    '=' RELAY_ATTN
+          '}'
+
+TRIGGER : '{'
+              'channel'  '=' CHANNEL
+              'count'    '=' TRIGGER_COUNT
+              'ext'      '=' BOOL
+              'level'    '=' TRIGGER_LEVEL
+              'slope'    '=' SLOPE
+          '}'
+
+CALIB  : 'ch1' CH 'ch2' CH
+
+CH     : '{' OFFSET_VOLTAGE{9} '}'
+       # for ascending attenuation (1x,1x),(1x,2x)...(100x,5x)
+```
+
+### Example
+
+The configuration file defines a sample rate of 100 MS/s:
+```
+$ cat capture.cfg 
+frame = tiny  # 0x100 records
+
+input = ch1   # channel-1 signal goes into both ADC
+              # we get 0x200 samples (2 x records)
+	      
+rate  = 50/1  # each ADC at 50 MS/s;
+              # effectively 100 MS/s since both ADC sample channel-1
+	      
+ch1 # 4 Vpp (attenuation 5x 10x)
+{
+    coupling = dc 
+    filter   = off  # seems to have no effect
+    mux      = 5x
+    offset   = 0x0c
+    relay    = 10x
+}
+
+ch2 # data has to be provided even if not used
+{
+    coupling = dc 
+    filter   = off 
+    mux      = 5x
+    offset   = 0x08
+    relay    = 10x
+}
+
+trigger 
+{
+    channel = ch1    # has to be defined even if not used
+    count   = tiny   # 1 .. frame-size
+    ext     = off    # has to be defined even if not used
+    level   = 0x80   # has to be defined even if not used
+    slope   = rise   # has to be defined even if not used
+}
+
+ext.filter = off # has to be defined even if not used
+```
+
+The offset-voltage is chosen to guarantee an ADC output above zero. With the signal at 'ch1' input grounded we sample following data:
+```
+$ ./dso2090 acquire auto yes capture.cfg | od -Ax -txC
+000000 04 02 04 02 04 02 04 01 04 02 04 01 04 01 04 02
+000010 04 02 04 01 04 02 04 02 04 01 04 02 04 02 04 02
+000020 04 02 04 02 04 02 04 02 04 01 04 02 04 02 04 02
+000030 04 02 04 02 04 02 04 01 04 01 04 02 04 01 04 02
+000040 04 02 04 02 04 02 04 02 04 02 04 02 04 02 04 02
+000050 04 02 04 02 04 02 04 02 04 01 04 01 04 02 04 02
+000060 04 02 04 02 04 02 04 01 04 01 04 02 04 02 04 02
+000070 04 02 04 02 04 02 04 02 04 02 04 02 04 02 04 02
+*
+000090 04 01 04 02 04 02 04 02 04 02 04 02 04 02 04 02
+0000a0 04 01 04 02 04 02 04 02 04 02 04 02 04 02 05 02
+0000b0 04 02 04 02 04 02 05 02 04 02 04 02 04 02 04 02
+0000c0 04 02 04 02 04 02 04 02 04 02 04 02 04 02 04 02
+0000d0 04 02 04 01 04 02 04 02 04 01 04 02 04 02 04 02
+0000e0 04 01 04 02 04 02 04 02 04 02 05 02 04 02 04 02
+0000f0 04 02 05 02 04 02 04 02 04 02 04 02 04 02 04 02
+000100 04 01 04 02 04 01 04 02 04 02 04 02 04 02 04 02
+000110 04 02 04 02 04 02 04 02 04 02 04 02 04 02 04 02
+000120 04 02 04 02 04 03 04 02 04 02 04 02 04 02 04 02
+000130 04 02 04 02 04 02 04 01 04 01 04 02 04 01 04 02
+000140 04 02 04 02 04 02 04 02 04 01 04 02 04 02 04 02
+*
+000160 04 01 04 02 04 02 04 02 04 01 04 02 04 02 04 02
+000170 04 02 04 02 04 02 04 01 04 01 04 02 04 02 04 02
+000180 04 02 03 02 04 02 04 01 04 02 04 01 04 02 04 02
+000190 04 01 04 02 04 02 04 02 04 01 04 01 04 01 04 02
+0001a0 04 01 04 01 04 02 04 02 04 01 04 02 04 02 04 02
+0001b0 04 02 04 02 04 02 04 01 04 02 04 02 04 02 04 02
+0001c0 04 02 04 02 04 02 04 02 04 01 04 02 04 01 04 02
+0001d0 04 01 04 01 04 02 04 02 04 02 04 02 04 01 04 02
+0001e0 04 01 04 02 04 02 04 02 04 01 04 02 04 02 04 02
+0001f0 04 02 04 02 04 02 04 02 04 01 04 02 04 02 04 02
+000200
+```
+That is, ADC-0 produces +4 digits and ADC-1 produces about +2 digits.
+
+Set signal to a 1 MHz square wave 3.3 Vpp:
+
+```
+$ ./dso2090 acquire auto yes capture.cfg | od -Ax -txC
+000000 20 46 69 85 9d ac b8 c0 c6 c9 cb cc ce cd ce cf
+000010 cf cf d0 cf d0 ce cf cf d0 ce d0 cf cf ce cf cf
+000020 cf ce cf cf cf cf cf cf cf cf cf cf cf cf cf cf
+000030 cf d0 b5 8c 6b 4c 37 26 1c 13 0f 0a 0a 08 08 05
+000040 06 05 06 03 06 04 05 04 06 04 05 03 05 04 05 04
+000050 06 04 06 04 06 04 06 04 06 03 05 03 05 03 06 04
+000060 05 04 05 03 1f 46 69 85 9d ac b8 bf c6 c9 cb cc
+000070 ce ce ce ce d0 ce d0 cf cf ce cf cf d0 ce cf cf
+000080 cf ce cf ce ce ce cf cf ce ce ce ce cf ce ce cf
+000090 cf cf cf cf cf cf b4 8b 6a 4b 37 25 1c 12 0f 0a
+0000a0 09 07 07 04 06 04 05 04 05 03 05 03 05 03 06 04
+0000b0 05 04 05 03 05 03 05 04 06 03 05 03 05 04 06 04
+0000c0 05 04 05 03 05 04 05 04 21 47 6a 86 9c ac b9 c0
+0000d0 c5 c8 cb cb cd cd ce ce d0 ce cf cf cf ce cf cf
+0000e0 d0 cf cf ce ce ce cf ce cf ce cf ce ce ce cf cf
+0000f0 cf cf cf ce cf ce cf cf cf cf b4 8b 69 4b 37 25
+000100 1c 13 0f 0a 0a 07 07 05 06 04 06 04 05 04 05 04
+000110 05 04 06 03 06 04 05 04 06 04 06 04 06 04 06 04
+000120 06 04 05 03 05 03 06 03 06 04 05 03 21 47 6a 87
+000130 9d ad b9 bf c6 c9 cb cc ce ce cf cf d0 cf d0 d0
+000140 d0 d0 d0 cf d0 cf cf cf cf ce cf ce cf ce cf cf
+000150 cf cf cf ce cf cf cf cf cf ce cf cf d0 d0 b3 8b
+000160 69 4b 37 25 1b 12 0f 0a 0a 07 08 05 06 05 06 04
+000170 06 04 05 03 06 03 06 04 06 04 06 04 06 04 06 04
+000180 06 04 06 03 06 04 05 04 06 04 05 03 05 03 05 04
+000190 22 48 6b 87 9d ae b9 c0 c6 c8 cb cc ce ce ce ce
+0001a0 d0 cf d0 cf d0 cf d0 cf d0 ce cf ce cf ce cf cf
+0001b0 ce cf cf ce cf ce cf cf cf ce cf cf d0 cf cf cf
+0001c0 cf cf b3 89 69 4b 37 25 1b 12 0f 09 09 07 07 05
+0001d0 06 04 06 04 05 03 05 03 05 03 05 03 06 04 06 04
+0001e0 06 04 06 04 06 04 06 04 05 03 05 03 05 03 05 03
+0001f0 05 03 05 03 21 48 6b 87 9d ad b9 bf c6 c8 05 04
+000200
+```
+There is a periodic signal that repeats each 50 records (100 samples @ 100 MS/s) which makes a 1 MHz square wave.
+
+Set signal to a 50 MHz square wave 3.3 Vpp:
+```
+$ ./dso2090 acquire auto yes capture.cfg | od -Ax -txC
+000000 60 6d 60 6d 61 6d 60 6d 60 6c 60 6d 61 6d 60 6d
+000010 61 6d 60 6d 61 6e 60 6d 61 6c 60 6e 61 6e 60 6d
+000020 60 6c 5f 6d 61 6c 60 6c 60 6d 61 6d 61 6d 60 6d
+000030 61 6d 60 6d 61 6e 61 6e 61 6d 61 6e 61 6e 60 6e
+000040 61 6e 61 6d 61 6e 60 6d 61 6c 60 6e 61 6e 60 6e
+000050 61 6d 60 6e 61 6e 61 6d 61 6d 60 6e 61 6e 60 6d
+000060 61 6d 60 6e 61 6e 60 6e 61 6d 60 6d 61 6e 61 6f
+000070 61 6d 61 6e 61 6e 60 6d 61 6d 60 6d 61 6e 60 6e
+000080 61 6c 61 6d 61 6e 61 6e 61 6d 61 6e 61 6e 61 6e
+000090 61 6e 61 6e 61 6e 61 6d 61 6e 60 6e 61 6e 60 6e
+0000a0 61 6e 60 6e 61 6e 61 6d 61 6d 60 6d 61 6e 60 6e
+0000b0 61 6d 60 6d 61 6d 61 6e 61 6d 61 6d 61 6e 60 6e
+0000c0 61 6d 60 6e 61 6e 61 6e 61 6d 60 6e 61 6e 61 6e
+0000d0 61 6d 61 6d 61 6d 60 6d 61 6d 61 6d 61 6d 60 6d
+0000e0 61 6d 61 6e 61 6d 61 6d 61 6c 60 6d 61 6d 60 6d
+0000f0 61 6d 60 6d 61 6d 61 6d 61 6c 60 6d 61 6e 61 6e
+000100 61 6d 60 6e 61 6e 60 6d 61 6c 60 6d 61 6d 60 6d
+000110 61 6c 60 6d 61 6d 61 6d 61 6c 60 6e 61 6d 60 6d
+000120 61 6c 60 6d 61 6d 60 6c 61 6c 60 6d 61 6d 60 6d
+000130 61 6d 60 6d 61 6d 61 6d 61 6c 60 6d 61 6d 60 6d
+000140 60 6c 60 6d 60 6c 60 6c 61 6c 60 6c 61 6c 60 6d
+000150 61 6c 60 6c 61 6d 60 6c 61 6c 60 6c 61 6c 60 6d
+000160 61 6c 60 6c 61 6c 61 6d 61 6c 60 6c 61 6d 60 6d
+000170 61 6c 60 6c 61 6c 60 6c 61 6c 60 6c 61 6c 60 6d
+000180 61 6b 61 6c 61 6c 60 6d 61 6c 60 6d 61 6c 60 6c
+000190 61 6c 60 6c 61 6c 60 6c 61 6c 60 6d 61 6c 60 6c
+0001a0 61 6c 60 6d 61 6c 61 6c 61 6c 60 6c 61 6c 60 6d
+0001b0 60 6c 60 6c 61 6c 60 6c 61 6c 60 6c 61 6c 60 6d
+0001c0 61 6b 61 6c 61 6c 60 6c 61 6c 60 6d 61 6c 60 6c
+0001d0 61 6c 61 6c 61 6c 60 6c 61 6c 60 6c 61 6c 61 6c
+0001e0 61 6c 60 6c 61 6c 60 6c 61 6c 60 6c 61 6c 60 6c
+0001f0 61 6c 60 6c 61 6c 60 6c 61 6b 60 6c 61 6c 6e 60
+000200
+```
+There is a periodic signal that repeats each record (2 samples @ 100 MS/s) which makes a 50 MHz square wave, very damped though.
 
 ## Option: help
 ```
